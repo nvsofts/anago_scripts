@@ -1,0 +1,36 @@
+/*
+   iNES mapper 87
+   Used in Goonies, etc.
+   Detail: https://wiki.nesdev.com/w/index.php/INES_Mapper_087
+   
+   Attention: Not tested in 32KB CHR ROM!
+ */
+
+board <- {
+  mappernum = 87,
+  cpu_rom = {
+    size_base = 0x8000, size_max = 0x8000
+    banksize = 0x8000
+  },
+  ppu_rom= {
+    size_base = 0x4000, size_max = 0x8000,
+    banksize = 0x2000
+  },
+  ppu_ramfind = false, vram_mirrorfind = true
+};
+
+function cpu_dump(d, pagesize, banksize)
+{
+  cpu_read(d, 0x8000, 0x4000);
+  cpu_read(d, 0xc000, 0x4000);
+}
+
+function ppu_dump(d, pagesize, banksize)
+{
+  for (local i = 0; i < pagesize; i++) {
+    local low = i & 1;
+    local high = (i & 2) ? 1 : 0;
+    cpu_write(d, 0x6000, (low << 1) | high);
+    ppu_read(d, 0, banksize);
+  }
+}
